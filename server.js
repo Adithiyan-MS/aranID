@@ -1,16 +1,19 @@
-import 'dotenv/config'; // Modern way to load .env
-import app from './src/app.js'; // MUST include .js
+import 'dotenv/config'; 
+import app from './src/app.js'; 
 import connectDB from './src/config/db.js';
 
-// We use process.env.PORT for production (Render/Heroku) 
-// and 5000 as a fallback for our local machine.
 const PORT = process.env.PORT || 5000;
 
-// db connection
+// Initialize DB connection
 connectDB();
 
-app.listen(PORT, () => {
-    console.log(`----------------------------------------`);
-    console.log(`Auth Service running on Port: ${PORT}`);
-    console.log(`----------------------------------------`);
-});
+// Only call app.listen if we are NOT on Vercel
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`----------------------------------------`);
+        console.log(`Auth Service running on Port: ${PORT}`);
+        console.log(`----------------------------------------`);
+    });
+}
+
+export default app;
