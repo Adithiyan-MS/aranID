@@ -22,7 +22,7 @@ const getCookieOptions = () => {
     return {
         httpOnly: true,
         secure: isProd,
-        sameSite: 'lax',
+        sameSite: isProd ? 'none' : 'lax', // 'none' is required for cross-domain SSO on Render
         path: '/'
     };
 };
