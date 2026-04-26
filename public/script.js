@@ -147,6 +147,9 @@ window.showView = function(viewName, data = null) {
 
     authContent.classList.add('fade-out');
 
+    const params = new URLSearchParams(window.location.search);
+    const redirectUri = params.get('redirect');
+
     setTimeout(() => {
         authContent.innerHTML = views[viewName](data);
         authContent.classList.remove('fade-out');
@@ -156,6 +159,20 @@ window.showView = function(viewName, data = null) {
             if (viewName === 'register') heroText.innerText = 'Every great story starts with a single intention.';
             if (viewName === 'forgot' || viewName === 'reset') heroText.innerText = 'Security is the ability to recover what was lost.';
             if (viewName === 'login') heroText.innerText = 'The best way to predict the future is to create it.';
+        }
+
+        // Keep the redirect parameter alive when clicking "Create Identity" or "Sign In"
+        if (redirectUri) {
+            document.querySelectorAll('.footer-links a').forEach(link => {
+                const url = new URL(link.href, window.location.href);
+                url.searchParams.set('redirect', redirectUri);
+                // We handle this in showView navigation logic usually, 
+                // but just in case they are real links:
+                if (link.id === 'link-register' || link.id === 'link-login') {
+                    // These are handled by attachNavigation, so we just need to ensure 
+                    // the URL search stays consistent.
+                }
+            });
         }
 
         attachNavigation();
@@ -243,10 +260,15 @@ function attachListeners() {
                 }, false);
 
                 sessionStorage.setItem('pendingVerificationEmail', email);
+                
+                const params = new URLSearchParams(window.location.search);
+                const redirectUri = params.get('redirect');
+                const redirectSuffix = redirectUri ? `&redirect=${encodeURIComponent(redirectUri)}` : '';
+
                 if (authContent) {
                     window.showView('verify', email);
                 } else {
-                    window.location.href = `verify.html?email=${encodeURIComponent(email)}`;
+                    window.location.href = `verify.html?email=${encodeURIComponent(email)}${redirectSuffix}`;
                 }
             } catch (err) {
                 alert(err.message);
@@ -372,7 +394,17 @@ async function bootstrapProtectedPage() {
             el.innerText = user.username?.[0]?.toUpperCase() || '?';
         });
     } catch (err) {
-        window.location.href = 'index.html';
+        // Only redirect to login if we aren't already there (to avoid loops)
+        if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // SSO Auto-Redirect: If we are already logged in and came from another app, jump back!
+    const params = new URLSearchParams(window.location.search);
+    const redirectUri = params.get('redirect');
+    if (redirectUri) {
+        window.location.href = redirectUri;
     }
 }
 
