@@ -68,7 +68,21 @@ export const verifyOTP = asyncHandler(async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Identity verified' });
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+    setAuthCookies(res, accessToken, refreshToken);
+
+    res.status(200).json({ 
+        message: 'Identity verified',
+        token: accessToken,
+        refreshToken: refreshToken,
+        user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            avatar: user.avatar
+        }
+    });
 });
 
 // --- LOGIN (With Rotation) ---
@@ -230,7 +244,18 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
 // --- ME ---
 export const getMe = asyncHandler(async (req, res) => {
-    res.status(200).json(req.user);
+    // Generate a fresh token for the app that is calling this
+    const accessToken = generateAccessToken(req.user._id);
+    
+    res.status(200).json({
+        user: {
+            _id: req.user._id,
+            username: req.user.username,
+            email: req.user.email,
+            avatar: req.user.avatar
+        },
+        token: accessToken
+    });
 });
 
 // --- LOGOUT ---
