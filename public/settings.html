@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identity Settings - The Archive</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { display: block; }
+        .page-shell { max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .page-nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 3rem; }
+        .page-nav a { color: var(--clay); text-decoration: none; }
+        .profile-grid { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; align-items: start; }
+        .card { border: 1px solid var(--border); background: #fff; padding: 2rem; }
+        .avatar-lg { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 1rem; }
+        .meta-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .meta-item { padding: 1rem; background: #faf8f5; border: 1px solid var(--border); }
+        @media (max-width: 800px) { .profile-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body data-page="settings">
+    <div class="page-shell">
+        <div class="page-nav">
+            <a href="dashboard.html">Back to dashboard</a>
+            <button id="logoutBtn" style="width:auto; margin:0; padding:0.9rem 1.25rem;">LOGOUT</button>
+        </div>
+
+        <div class="profile-grid">
+            <aside class="card" style="text-align:center;">
+                <img data-user="avatar" class="avatar-lg" alt="User avatar">
+                <h1 data-user="username">...</h1>
+                <p class="subtitle" data-user="email" style="margin-bottom:0;"></p>
+            </aside>
+
+            <section class="card">
+                <h2 style="margin-bottom:0.5rem;">Identity settings</h2>
+                <p class="subtitle">Your account state and recovery details at a glance.</p>
+
+                <div class="meta-list">
+                    <div class="meta-item">
+                        <label>Status</label>
+                        <div data-user="status">...</div>
+                    </div>
+                    <div class="meta-item">
+                        <label>Verification</label>
+                        <div data-user="verified">...</div>
+                    </div>
+                    <div class="meta-item">
+                        <label>Member Since</label>
+                        <div data-user="created-at">...</div>
+                    </div>
+                    <div class="meta-item">
+                        <label>Last Login</label>
+                        <div data-user="last-login">...</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
