@@ -229,7 +229,7 @@ function attachListeners() {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                await apiFetch('/api/auth/login', {
+                const data = await apiFetch('/api/auth/login', {
                     method: 'POST',
                     body: JSON.stringify({ email: e.target.email.value, password: e.target.password.value })
                 }, false);
@@ -237,7 +237,9 @@ function attachListeners() {
                 const params = new URLSearchParams(window.location.search);
                 const redirectUri = params.get('redirect');
                 if (redirectUri) {
-                    window.location.href = redirectUri;
+                    // Append the token to the redirect URI so the other app can use it!
+                    const separator = redirectUri.includes('?') ? '&' : '?';
+                    window.location.href = `${redirectUri}${separator}sso_token=${data.token}`;
                 } else {
                     window.location.href = 'dashboard.html';
                 }
@@ -362,7 +364,18 @@ async function bootstrapProtectedPage() {
     if (!page) return;
 
     try {
-        const user = await apiFetch('/api/auth/me');
+        const data = await apiFetch('/api/auth/me');
+        const user = data.user;
+        const token = data.token;
+
+        // SSO Auto-Redirect: If we are already logged in and came from another app, jump back with the token!
+        const params = new URLSearchParams(window.location.search);
+        const redirectUri = params.get('redirect');
+        if (redirectUri && token) {
+            const separator = redirectUri.includes('?') ? '&' : '?';
+            window.location.href = `${redirectUri}${separator}sso_token=${token}`;
+            return; // Stop execution here
+        }
 
         document.querySelectorAll('[data-user="username"]').forEach((el) => {
             el.innerText = user.username;
@@ -398,13 +411,6 @@ async function bootstrapProtectedPage() {
         if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
             window.location.href = 'index.html';
         }
-    }
-
-    // SSO Auto-Redirect: If we are already logged in and came from another app, jump back!
-    const params = new URLSearchParams(window.location.search);
-    const redirectUri = params.get('redirect');
-    if (redirectUri) {
-        window.location.href = redirectUri;
     }
 }
 
