@@ -216,7 +216,14 @@ function attachListeners() {
                     method: 'POST',
                     body: JSON.stringify({ email: e.target.email.value, password: e.target.password.value })
                 }, false);
-                window.location.href = 'dashboard.html';
+                
+                const params = new URLSearchParams(window.location.search);
+                const redirectUri = params.get('redirect');
+                if (redirectUri) {
+                    window.location.href = redirectUri;
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             } catch (err) {
                 alert(err.message);
             }
@@ -259,8 +266,13 @@ function attachListeners() {
                     body: JSON.stringify({ email: e.target.email.value, otp: e.target.otp.value })
                 }, false);
                 sessionStorage.removeItem('pendingVerificationEmail');
-                alert('Verified! Redirecting to Sign In...');
-                if (authContent) {
+                alert('Verified! Redirecting...');
+                
+                const params = new URLSearchParams(window.location.search);
+                const redirectUri = params.get('redirect');
+                if (redirectUri) {
+                    window.location.href = redirectUri;
+                } else if (authContent) {
                     window.showView('login');
                 } else {
                     window.location.href = 'index.html';
